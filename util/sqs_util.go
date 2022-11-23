@@ -90,16 +90,11 @@ func handleMessage(msg *sqs.Message) {
 	if err := json.Unmarshal([]byte(*msg.Body), &items); err != nil {
 		log.Println(err)
 	}
-	fmt.Println(items["replyToken"])
-	fmt.Println(items["messages"])
+	log.Println(items["replyToken"])
+	log.Println(items["messages"])
 	if items["replyToken"] != nil {
 		Reply(items["replyToken"].(string), items["messages"].(map[string]interface{}))
 
 	}
 
-}
-func MapInterface(data string) map[string]interface{} {
-	map_data := make(map[string]interface{})
-	json.Unmarshal([]byte(data), &map_data)
-	return map_data
 }

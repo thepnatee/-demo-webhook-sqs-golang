@@ -52,6 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
 	app := fiber.New()
 
 	// Start Connect SQS
@@ -59,6 +60,7 @@ func main() {
 	// Start Consume
 	go util.Read()
 
+	// Route Webhook
 	app.Post("/webhook", func(c *fiber.Ctx) error {
 
 		events := new(LineMessage)
@@ -70,8 +72,10 @@ func main() {
 		for _, event := range events.Events {
 			queue := make(map[string]interface{})
 			queue["replyToken"] = event.ReplyToken
+			// test event message type "text"
 			if event.Message.Type == "text" {
 
+				// test message equal text1
 				if event.Message.Text == "text1" {
 
 					var messages = util.ImportFileJson1("message_demo_1.json")
@@ -79,7 +83,7 @@ func main() {
 					// LINE API Validate Object
 					chkValid, errMessage := util.ValidateReply(messages)
 
-					// condition true
+					// Condition JSON True
 					if chkValid {
 						queue["messages"] = messages
 						info, _ := json.Marshal(queue)
@@ -91,6 +95,8 @@ func main() {
 					}
 
 				}
+
+				// test message equal text2
 				if event.Message.Text == "text2" {
 
 					// start import file json error object
@@ -99,10 +105,12 @@ func main() {
 					// LINE API Validate Object
 					chkValid, errMessage := util.ValidateReply(messages)
 
-					// condition false
+					// Condition Json false
 					if chkValid {
+
 						queue["messages"] = messages
 						info, _ := json.Marshal(queue)
+
 						// deliver message to queue
 						util.SQSWriter(string(info))
 					} else {
