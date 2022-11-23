@@ -89,7 +89,7 @@ func main() {
 						info, _ := json.Marshal(queue)
 
 						// deliver message to queue
-						util.SQSWriter(string(info))
+						go util.SQSWriter(string(info))
 					} else {
 						log.Println(*errMessage)
 					}
@@ -112,7 +112,7 @@ func main() {
 						info, _ := json.Marshal(queue)
 
 						// deliver message to queue
-						util.SQSWriter(string(info))
+						go util.SQSWriter(string(info))
 					} else {
 						log.Println(*errMessage)
 					}
