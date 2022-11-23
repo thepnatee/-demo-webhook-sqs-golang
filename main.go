@@ -3,7 +3,6 @@ package main
 import (
 	"demo-sqs/util"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -55,7 +54,9 @@ func main() {
 	}
 	app := fiber.New()
 
+	// Start Connect SQS
 	go util.SQSConnect()
+	// Start Consume
 	go util.Read()
 
 	app.Post("/webhook", func(c *fiber.Ctx) error {
@@ -72,17 +73,8 @@ func main() {
 			if event.Message.Type == "text" {
 
 				if event.Message.Text == "text1" {
-					// start import file json object
-					jsonFile, err := os.Open("message_demo_1.json")
-					if err != nil {
-						log.Println(err)
-					}
-					defer jsonFile.Close()
 
-					// convert json to interface
-					byteValue, _ := ioutil.ReadAll(jsonFile)
-					var messages map[string]interface{}
-					json.Unmarshal([]byte(byteValue), &messages)
+					var messages = util.ImportFileJson1("message_demo_1.json")
 
 					// LINE API Validate Object
 					chkValid, errMessage := util.ValidateReply(messages)
@@ -102,16 +94,7 @@ func main() {
 				if event.Message.Text == "text2" {
 
 					// start import file json error object
-					jsonFile, err := os.Open("message_demo_2.json")
-					if err != nil {
-						log.Println(err)
-					}
-					defer jsonFile.Close()
-
-					// convert json to interface
-					byteValue, _ := ioutil.ReadAll(jsonFile)
-					var messages map[string]interface{}
-					json.Unmarshal([]byte(byteValue), &messages)
+					var messages = util.ImportFileJson1("message_demo_2.json")
 
 					// LINE API Validate Object
 					chkValid, errMessage := util.ValidateReply(messages)
@@ -140,5 +123,5 @@ func main() {
 
 	appPort := os.Getenv("PORT")
 	log.Println("Application is starting at port :", appPort)
-	app.Listen(":" + os.Getenv("PORT"))
+	app.Listen(":" + appPort)
 }
